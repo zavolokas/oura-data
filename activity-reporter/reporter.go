@@ -2,16 +2,18 @@ package activityreporter
 
 import (
 	"time"
-
-	"github.com/zavolokas/oura-data/ouraring"
 )
 
-type I interface {
+type StepsProvider interface {
 	GetSteps(start time.Time, end time.Time) (int, error)
 }
 
+type I interface {
+	StepsProvider
+}
+
 type reporter struct {
-	OuraClient ouraring.I
+	StepsProviders []StepsProvider
 }
 
 type Option func(r *reporter)
@@ -27,15 +29,18 @@ func New(options ...Option) I {
 }
 
 func (r *reporter) GetSteps(start time.Time, end time.Time) (int, error) {
-	if r.OuraClient != nil {
-
+	if len(r.StepsProviders) == 0 {
+		return -1, NewNoStepsProviderError()
 	}
 
-	return -1, NewNoStepsProviderError()
+	// TODO: should return aggregated and provoder tagged data
+	return r.StepsProviders[0].GetSteps(start, end)
 }
 
 func WithOuraRingData(ouraToken string) Option {
 	return func(r *reporter) {
-		r.OuraClient = ouraring.NewClient(ouraToken)
+		ouraReporter := newOuraReporter(ouraToken)
+
+		r.StepsProviders = append(r.StepsProviders, ouraReporter)
 	}
 }
