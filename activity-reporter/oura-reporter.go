@@ -1,6 +1,7 @@
 package activityreporter
 
 import (
+	"log"
 	"time"
 
 	"github.com/zavolokas/oura-data/ouraring"
@@ -17,5 +18,12 @@ func newOuraReporter(ouraToken string) I {
 }
 
 func (r *ouraReporter) GetSteps(start time.Time, end time.Time) (int, error) {
-	return -1, NewNotImplementedError("Oura.GetSteps")
+	response, err := r.OuraClient.GetDailyActivity()
+	if err != nil {
+		log.Printf("error getting daily activity from oura")
+		return -1, err
+	}
+	return response.Data[0].Steps, nil
+
+	//return -1, NewNotImplementedError("Oura.GetSteps")
 }

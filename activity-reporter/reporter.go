@@ -37,6 +37,7 @@ func (r *reporter) GetSteps(start time.Time, end time.Time) (int, error) {
 	return r.StepsProviders[0].GetSteps(start, end)
 }
 
+// TODO: move the option to Ring package
 func WithOuraRingData(ouraToken string) Option {
 	return func(r *reporter) {
 		ouraReporter := newOuraReporter(ouraToken)
